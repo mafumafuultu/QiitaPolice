@@ -1,0 +1,7 @@
+{
+	"name": "NG idiom filter.",
+	"description" : "登録した熟語を対象にフィルタをかける",
+	"filter" : [
+		"call girl"
+	]
+}

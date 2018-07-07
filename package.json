@@ -1,0 +1,21 @@
+{
+  "name": "qiita-police",
+  "version": "0.0.1",
+  "description": "Qiitaのスパム発見に使う",
+  "main": "index.js",
+  "dependencies": {
+    "electron": "^2.0.4",
+    "jquery": "^3.3.1",
+    "less": "^3.5.2",
+    "moment": "^2.22.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "electron .",
+    "less": "lessc -ru ./assets/less/main.less ./assets/css/main.css",
+    "lessw": "lessc -w-ru ./assets/less/main.less ./assets/css/main.css",
+    "test": "electron ."
+  },
+  "author": "mafumafuultu",
+  "license": "MIT"
+}

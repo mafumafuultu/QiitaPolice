@@ -1,0 +1,84 @@
+/* サクッとスタイルを決めていく */
+
+html, body {
+	font-family: "Source Han Sans JP Medium";
+	font-size: 10px;
+	width: 100%; height: 100%;margin: 0;padding: 0;
+}
+
+#buttons {
+	position: fixed;
+	top: 0;
+	opacity: 0.5;
+	font-size: 1.2rem;
+	&:hover {
+		opacity: 1;
+	}
+
+	& .btn {
+		font-size: 1.4rem;
+		color: royalblue;
+		background: transparent;
+		border: solid 2px royalblue;
+		border-radius: 4px;
+		margin-right: 4px;
+
+		transion: color, background;
+		transition-delay: 250ms;
+		transition-duration: 500ms;
+
+		&:hover {
+			color: #ffffff;
+			background: royalblue;
+		}
+	}
+}
+
+.tagItem() {
+	margin-right: 4px;
+	padding: 0 4px;
+	border-radius: 4px;
+}
+
+article {
+	font-size: 1.4rem;
+	margin-top: 1rem;
+	padding :  1rem;
+	border-bottom: solid 2px silver;
+
+
+	& h3 {
+		font: 1.6rem;
+	}
+	& .markNG {
+		font-size : 1.6rem;
+		font-weight: 900;
+		margin: 2px;
+		color: #ffffff;
+		background: #ff0000;
+		border: none;
+		border-radius: 4px;
+		&:hover {
+			@color : lighten(#ff0000, 10%);
+			color: contrast(@color);
+			background: @color;
+		}
+	}
+	& .ngword {
+		font-size: 1.4rem;
+		color : #ffffff;
+		background: orange;
+		.tagItem()
+	}
+	& .ngidiom {
+		font-size: 1.4rem;
+		color : #ffffff;
+		background: #ff0000;
+		.tagItem()
+	}
+	& .tags > span {
+		color: #ffffff;
+		background: darken(green, 10%);
+		.tagItem()
+	}
+}
