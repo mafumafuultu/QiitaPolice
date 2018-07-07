@@ -1,7 +1,7 @@
 {
   "name": "qiita-police",
   "version": "0.0.1",
-  "description": "Qiitaのスパム発見に使う",
+  "description": "Qiitaのスパム投稿発見に使うelectron製デスクトップアプリ",
   "main": "index.js",
   "dependencies": {
     "electron": "^2.0.4",
@@ -9,12 +9,14 @@
     "less": "^3.5.2",
     "moment": "^2.22.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron-packager": "^12.1.0"
+  },
   "scripts": {
     "start": "electron .",
     "less": "lessc -ru ./assets/less/main.less ./assets/css/main.css",
     "lessw": "lessc -w-ru ./assets/less/main.less ./assets/css/main.css",
-    "test": "electron ."
+	"build": "electron-packager . QiitaPolice --out=../build --overwrite --asar"
   },
   "author": "mafumafuultu",
   "license": "MIT"

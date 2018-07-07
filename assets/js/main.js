@@ -70,23 +70,7 @@ $(function() {
 function initJqEvent() {
 	$('#newitem').on('click', reloadView);
 	$('#testData').on('click', function() {
-		var testData = [{
-			title: 'これはサンプルのデータ check ng word',
-			body: 'サンプルテキストを入れて実験してる。 testdata が入っているみたい',
-			tags: [{name: 'test'}, {name:  'data'}, {name: 'sample'}],
-			url: 'https://example.com',
-			user: {
-				id: 'testname124',
-			}
-		}, {
-			title: 'これはサンプルのデータ2 chaeck ng idiom',
-			body: 'サンプルテキストを入れて実験してる。 gentleman call girl ngwordが入っているみたい。 test data ',
-			tags: [{name: 'test'}, {name:  'data'}, {name: 'sample'}],
-			url: 'https://example.com',
-			user: {
-				id: 'testname124',
-			}
-		}];
+		var testData = JSON.parse(readFile('./resources/test/sample.json'));
 		updateView(testData);}
 	);
 	$('#export').on('click', function() {
