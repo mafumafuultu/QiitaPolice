@@ -8,6 +8,15 @@ Qiitaに投稿されるスパムを検出するために使用する。
 
 ## install
 
+## build
+
+powershell
+
+```
+npm run less
+npm run build
+cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
+```
 
 ## 機能
 
