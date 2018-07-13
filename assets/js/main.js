@@ -1,87 +1,45 @@
+const moduleAlias = require('module-alias')();
+const {Obj, CustomFilter} = require('modreader');
 window.$ = window.jQuery = require('jquery');
 const moment = require('moment');
 const fs = require('fs');
 
-var FILTER = {
-	INIT : {
-		list: [],
-		reason:'',
-		_path: './resources/filters/ngword.json',
-		newReg: function() {
-			this._reg = new RegExp(`\\b${this.list.join('\\b|\\b')}\\b`,'gi');
-		},
-		init: function() {
-			var data = JSON.parse(readFile(this._path));
-			this.list = data.filter;
-			console.log(data);
-			this.newReg();
-		},
-		check: function(txt) {
-			this._reg.lastIndex = 0;
-			this._result = this._reg.test(txt);
-		},
-		get result() {return this._result;},
-		get elem() {return this._result ? this.reason : '';}
-	},
-	REJECT: {
-		// このREJECTはファイルに追記していくデータをためるために使う。
-		// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
-		list: [],
-		get exportStr() {return JSON.stringify(this.list, null, '\t');},
-		add: function(data) {this.list.push(data);},
-		clear: function() {this.list = [];},
-		distinctTitle: function() {this.list = this.list.filter(this.f, []);},
-		f: function(e) {
-			if (!this.includes(e.title)) {
-				this.push(e.title);
-				return true;
-			}
+var REJECT = {
+	// このREJECTはファイルに追記していくデータをためるために使う。
+	// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
+	list: [],
+	get exportStr() {return JSON.stringify(this.list, null, '\t');},
+	add(data) {this.list.push(data);},
+	clear() {this.list = [];},
+	distinctTitle() {this.list = this.list.filter(this.f, []);},
+	f(e) {
+		if (!this.includes(e.title)) {
+			this.push(e.title);
+			return true;
 		}
-
 	}
 };
-FILTER.NG_WORD = $.extend(false, FILTER.INIT, {
-	reason:'<span class="ngword">ng word</span>',
-	_path: './resources/filters/ngword.json',
-	newReg: function() {
-		/* TODO : 2018/07/07 mafumafuultu :
-			正規表現をもう少し検討する
-			英単語には強いけども…
-		*/
-		this._reg = new RegExp(`\\b${this.list.join('\\b|\\b')}\\b`,'gi');
-	},
-});
-FILTER.NG_IDIOM = $.extend(false, FILTER.INIT, {
-	reason: '<span class="ngidiom">ng idiom</span>',
-	_path: './resources/filters/ngidiom.json',
-	newReg: function() {
-		this._reg = new RegExp(`${this.list.join('|')}`,'gi');
-	},
-});
 
 $(function() {
-	FILTER.NG_WORD.init();
-	FILTER.NG_IDIOM.init();
-	console.clear();
-	console.log('complete');
 	initJqEvent();
 });
 
 function initJqEvent() {
 	$('#newitem').on('click', reloadView);
+
 	$('#testData').on('click', function() {
 		var testData = JSON.parse(readFile('./resources/test/sample.json'));
 		updateView(testData);}
 	);
+
 	$('#export').on('click', function() {
-		write(`./resources/reject/rejected-${moment(Date.now()).format('YYYY-MM-DD')}.txt`, FILTER.REJECT.exportStr);
-		FILTER.REJECT.clear();
+		write(`./resources/reject/rejected-${moment(Date.now()).format('YYYY-MM-DD')}.txt`, REJECT.exportStr);
+		REJECT.clear();
 	});
 
 	$(document).on('click', '.markNG', function() {
-		var postData = $(this).closest('article').data('post');
-		FILTER.REJECT.add(postData);
-		FILTER.REJECT.distinctTitle();
+		REJECT.add($(this).closest('article').data('post'));
+		REJECT.distinctTitle();
 	})
 }
 
@@ -98,33 +56,41 @@ function updateView(items) {
 	var content = $('<div id="contentList"></div>');
 	for (var item of items) {
 		// 正直言えば、　/^\d+$/ にマッチするユーザはフィルタしたい……。
-		FILTER.NG_WORD.check(item.body);
-		FILTER.NG_IDIOM.check(item.body);
-		if (FILTER.NG_WORD.result || FILTER.NG_IDIOM.result) FILTER.REJECT.add(item);
+		var post = {
+			title: item.title,
+			url: item.url,
+			tags: item.tags,
+			body: item.body
+		};
+		CustomFilter.check(item);
+		if (CustomFilter.result) REJECT.add(post);
+
 		content.append(toArticle(item));
-		content.find(`#${item.id}`).data('post', item);
+		content.find(`#${item.id}`).data('post', post);
 	}
+
 	$('#view').empty().append(content.children());
-	FILTER.REJECT.distinctTitle();
+	REJECT.distinctTitle();
 }
 
 function toArticle(item) {
 	return $(`
 <article id="${item.id}">
-<h3>${item.title}</h3>
-<div><button class="btn markNG">mark NG</button></div>
-<div>Filter : ${FILTER.NG_WORD.elem}${FILTER.NG_IDIOM.elem} </div>
-<div>UserID : ${item.user.id}</div>
-<div class="tags">Tag : <span>${item.tags.map((tag) => {return tag.name}).join('</span><span>')}</span></div>
-<div>URL : ${item.url}</div>
-<div class="itemBody">${item.body.replace(/</g, '&lt;')}</div>
+	<h3 class="itemTitle">${item.title}</h3>
+	<div><button class="btn markNG">mark NG</button></div>
+	<div class="reason">NG reason : ${CustomFilter.reason} </div>
+	<div class="user">UserID : ${item.user.id}</div>
+	<div class="tags">Tag : <span>${item.tags.map((tag) => tag.name).join('</span><span>')}</span></div>
+	<div class="url">URL : ${item.url}</div>
+	<div class="itemBody">${escapeBody(item.body)}</div>
 </article>`);
 }
+
+function escapeBody(str) {return str.replace(/</g, '&lt;').replace(/\n/g, '<br>');}
 
 function failedLog(error) {console.error(error);}
 function readFile(path) {return fs.readFileSync(path, 'utf8');}
 function write(path, appendTxt) {
-
 	try {
 		if (fs.existsSync(path)) {
 			fs.appendFileSync(path, appendTxt);

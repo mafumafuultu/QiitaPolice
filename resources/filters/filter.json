@@ -1,0 +1,17 @@
+{
+	"ngword" : {
+		"files" : [
+			"ngword.js"
+		]
+	},
+	"nguri" : {
+		"files" : [
+			"ngtitle.js"
+		]
+	},
+	"ngidiom" : {
+		"files" : [
+			"ngidiom.js"
+		]
+	}
+}

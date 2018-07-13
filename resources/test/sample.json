@@ -1,7 +1,7 @@
 [
 	{
 		"title": "これはサンプルのデータ check ng word",
-		"body": "サンプルテキストを入れて実験してる。 testdata が入っているみたい",
+		"body": "サンプルテキストを入れて実験してる。 ngData が入っているみたい",
 		"tags": [
 			{
 				"name": "test"
@@ -21,6 +21,25 @@
 	{
 		"title": "これはサンプルのデータ2 chaeck ng idiom",
 		"body": "サンプルテキストを入れて実験してる。 gentleman call girl ngwordが入っているみたい。 test data ",
+		"tags": [
+			{
+				"name": "test"
+			},
+			{
+				"name": "data"
+			},
+			{
+				"name": "sample"
+			}
+		],
+		"url": "https://example.com",
+		"user": {
+			"id": "testname124"
+		}
+	},
+	{
+		"title": "http://example.com",
+		"body": "サンプルテキストを入れて実験してる。 gentleman call girl ngDataが入っているみたい。URLだけのタイトルもはじく ",
 		"tags": [
 			{
 				"name": "test"

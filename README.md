@@ -23,10 +23,9 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 ### new item
 最新投稿から20件取得し、フィルタを適用し、その結果を表示する。
 
-
 ### Export
 フィルタにマッチしたデータを書き出す。
-`./resource/rejectedData/rejected.txt` に追記される。
+`./resource/reject/rejected-YYYY-MM-dd.txt` に追記される。
 
 ### Test
 テストデータに対してフィルタを適用し、その結果を表示する。
@@ -36,11 +35,54 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 
 
 ## Filter
-### NG word filter
-単語単位にフィルタをかける。  
-`./resource/filter/ngword.json` に単語を記載することでフィルタを行う。
+記述したフィルタは `assets/modules/custom-filter.js` のConstructorに渡されるArrayの要素になる。
 
+単純な単語フィルタの例
+```
+{
+	name : '単語フィルタ',
+	filter : [’ngword’, 'sexual'],
+	prop : 'body'
+}
+```
 
-### NG idiom filter
-熟語単位にフィルタをかける。  
-`./resource/filter/ngidiom.json` に熟語を記載することでフィルタを行う
+```
+{
+	// フィルタ名称
+	// マッチした投稿にどのフィルタにマッチしたのか表示するために使用
+	name : '単語フィルタ',
+
+	// マッチさせたい単語
+	filter : [’ngword’, 'sexual'],
+
+	// 投稿データでフィルタ対象にしたいプロパティ
+	prop : 'body',
+
+	/* 以下オプション */
+
+	_regexp() {
+		this._reg = new RegExp(`\\b${this.filter.join('\\b|\\b')}\\b`, 'gi');
+	},
+
+	// @param obj QiitaAPI v2 投稿1件分のデータ
+	// 結果は必ず this._result に入れる
+	check : function(obj) {
+		this._result = this._reg.test(obj[this.prop]);
+	},
+
+}
+```
+
+フィルタを作ったら`[フィルタ名].js`として保存し`resources/filters/`の適当な場所に置く。
+filter.json に置いたファイルのパスを記載する。
+
+```
+{
+	"resurces/filters/直下のdir名" : {
+		"files" : [
+			"[フィルタ名].js",
+			"作ったフィルタ2.js"
+		]
+	}
+}
+```

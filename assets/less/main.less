@@ -1,5 +1,4 @@
 /* サクッとスタイルを決めていく */
-
 html, body {
 	font-family: "Source Han Sans JP Medium";
 	font-size: 10px;
@@ -25,7 +24,7 @@ html, body {
 		border-radius: 4px;
 		margin-right: 4px;
 
-		transion: color, background;
+		transition: color, background;
 		transition-delay: 250ms;
 		transition-duration: 500ms;
 
@@ -48,11 +47,10 @@ article {
 	padding :  1rem;
 	border-bottom: solid 2px silver;
 
-
 	& h3 {
-		font: 1.6rem;
+		font-size: 1.6rem;
 	}
-	& .markNG {
+	.markNG {
 		font-size : 1.6rem;
 		font-weight: 900;
 		margin: 2px;
@@ -66,21 +64,18 @@ article {
 			background: @color;
 		}
 	}
-	& .ngword {
-		font-size: 1.4rem;
-		color : #ffffff;
-		background: orange;
-		.tagItem()
-	}
-	& .ngidiom {
+	.ngReason {
 		font-size: 1.4rem;
 		color : #ffffff;
 		background: #ff0000;
 		.tagItem()
 	}
-	& .tags > span {
+	.tags > span {
 		color: #ffffff;
 		background: darken(green, 10%);
 		.tagItem()
+	}
+	.itemBody {
+		
 	}
 }
