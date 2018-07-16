@@ -41,7 +41,7 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 ```
 {
 	name : '単語フィルタ',
-	filter : [’ngword’, 'sexual'],
+	filter : ['ngword', 'sexual'],
 	prop : 'body'
 }
 ```
@@ -53,7 +53,7 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 	name : '単語フィルタ',
 
 	// マッチさせたい単語
-	filter : [’ngword’, 'sexual'],
+	filter : ['ngword', 'sexual'],
 
 	// 投稿データでフィルタ対象にしたいプロパティ
 	prop : 'body',
