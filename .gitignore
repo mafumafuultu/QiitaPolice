@@ -3,3 +3,4 @@ assets/css/*
 package-lock.json
 build/
 resources/reject/*.txt
+doc/
