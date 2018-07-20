@@ -17,7 +17,7 @@ if (CustomFilter.result) {
 class CustomFilter{
 	constructor(userFilters = []) {
 		this.filters = [];
-		for (var filter of userFilters) this.filters.push(jQuery.extend(false, this.DEFAULT_SETTING, filter));
+		for (var filter of userFilters) this.filters.push(jQuery.extend(this.DEFAULT_SETTING, filter));
 		this.init();
 	}
 	get DEFAULT_SETTING() {

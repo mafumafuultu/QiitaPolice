@@ -38,7 +38,8 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 記述したフィルタは `assets/modules/custom-filter.js` のConstructorに渡されるArrayの要素になる。
 
 単純な単語フィルタの例
-```
+
+```js
 {
 	name : '単語フィルタ',
 	filter : ['ngword', 'sexual'],
@@ -46,7 +47,7 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 }
 ```
 
-```
+```js
 {
 	// フィルタ名称
 	// マッチした投稿にどのフィルタにマッチしたのか表示するために使用
@@ -76,7 +77,7 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 フィルタを作ったら`[フィルタ名].js`として保存し`resources/filters/`の適当な場所に置く。
 filter.json に置いたファイルのパスを記載する。
 
-```
+```json
 {
 	"resurces/filters/直下のdir名" : {
 		"files" : [

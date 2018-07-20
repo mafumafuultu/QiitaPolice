@@ -1,5 +1,5 @@
 const moduleAlias = require('module-alias')();
-const {Obj, CustomFilter} = require('modreader');
+const {CustomFilter, CountDownTimer} = require('modreader');
 window.$ = window.jQuery = require('jquery');
 const moment = require('moment');
 const fs = require('fs');
@@ -9,15 +9,10 @@ var REJECT = {
 	// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
 	list: [],
 	get exportStr() {return JSON.stringify(this.list, null, '\t');},
-	add(data) {this.list.push(data);},
+	add(data = {}) {this.list.push(data);},
 	clear() {this.list = [];},
 	distinctTitle() {this.list = this.list.filter(this.f, []);},
-	f(e) {
-		if (!this.includes(e.title)) {
-			this.push(e.title);
-			return true;
-		}
-	}
+	f(e) {return !this.includes(e.title) ? this.push(e.title) : false;}
 };
 
 $(function() {
@@ -28,9 +23,8 @@ function initJqEvent() {
 	$('#newitem').on('click', reloadView);
 
 	$('#testData').on('click', function() {
-		var testData = JSON.parse(readFile('./resources/test/sample.json'));
-		updateView(testData);}
-	);
+		updateView(JSON.parse(readFile('./resources/test/sample.json')));
+	});
 
 	$('#export').on('click', function() {
 		write(`./resources/reject/rejected-${moment(Date.now()).format('YYYY-MM-DD')}.txt`, REJECT.exportStr);
@@ -44,18 +38,20 @@ function initJqEvent() {
 }
 
 function reloadView() {
-	getItems()
-	.then(updateView, failedLog);
+	getItems().then(updateView);
 }
 
 function getItems() {
-	return $.get('https://qiita.com/api/v2/items');
+	return fetch('https://qiita.com/api/v2/items').then(r => {
+		if (r.ok) return r.json();
+		throw 'Fail';
+	}).catch(console.error);
 }
 
 function updateView(items) {
 	var content = $('<div id="contentList"></div>');
 	for (var item of items) {
-		// 正直言えば、　/^\d+$/ にマッチするユーザはフィルタしたい……。
+		// リジェクトしたデータのうち、NGパターンを探すときに欲しいモノ
 		var post = {
 			title: item.title,
 			url: item.url,
@@ -87,10 +83,8 @@ function toArticle(item) {
 }
 
 function escapeBody(str) {return str.replace(/</g, '&lt;').replace(/\n/g, '<br>');}
-
-function failedLog(error) {console.error(error);}
 function readFile(path) {return fs.readFileSync(path, 'utf8');}
-function write(path, appendTxt) {
+function write(path, appendTxt = '') {
 	try {
 		if (fs.existsSync(path)) {
 			fs.appendFileSync(path, appendTxt);
@@ -99,8 +93,7 @@ function write(path, appendTxt) {
 		}
 		return true;
 	} catch (e) {
-		failedLog(e);
+		console.error(e);
 		return false;
 	}
-
 }
