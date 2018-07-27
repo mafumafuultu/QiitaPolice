@@ -15,11 +15,6 @@ if (CustomFilter.result) {
 ```
 */
 class CustomFilter{
-	constructor(userFilters = []) {
-		this.filters = [];
-		for (var filter of userFilters) this.filters.push(jQuery.extend(this.DEFAULT_SETTING, filter));
-		this.init();
-	}
 	get DEFAULT_SETTING() {
 		return {
 			name : '',
@@ -41,15 +36,24 @@ class CustomFilter{
 		};
 	}
 
+	constructor(userFilters = []) {
+		this.filters = [];
+		for (var filter of userFilters) this.filters.push(jQuery.extend(this.DEFAULT_SETTING, filter));
+		this.init();
+	}
+
 	init() {
 		for (var filter of this.filters) filter.init();
 	}
+
 	check(obj) {
 		for (var filter of this.filters) filter.check(obj);
 	}
+
 	get result() {
 		return this.filters.map((fil) => fil.result()).includes(true);
 	}
+
 	get reason() {
 		return this.filters.map((fil) => fil.result() ? `<span class="ngReason">${fil.name}</span>` : '').join('');
 	}

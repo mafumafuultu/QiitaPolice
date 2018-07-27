@@ -1,6 +1,5 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 const isDebug = true;
-
 var win = null;
 
 app.on('window-all-closed', () => {if (process.platform !== 'darwin') app.quit();});
