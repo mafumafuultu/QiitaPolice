@@ -4,7 +4,7 @@
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 
 Qiitaに投稿されるスパムを検出するために使用する。  
-最新投稿20件に対して、チェックを行う。
+投稿に対して、チェックを行う。
 
 ## update
 [version.md参照](./version.md)
@@ -40,14 +40,13 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 テストデータは編集可能。
 
 ### AutoReload
-一定時間ごとに投稿を読み込む
+一定時間ごとに投稿を読み込む。ON/OFF可能でデフォルトOFF
 
 ### AutoExport
 スパムが一定量たまったら`./resource/reject/`に検出した投稿をはき出す。
 
 ### mark NG
 投稿ごとに用意しているボタンで、フィルタにマッチしなかったが、問題がある投稿としてマークしExport対象とする。
-
 
 ## Filter
 記述したフィルタは `assets/modules/custom-filter.js` のConstructorに渡されるArrayの要素になる。
