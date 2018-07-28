@@ -3,6 +3,7 @@ html, body {
 	font-family: "Source Han Sans JP Medium";
 	font-size: 10px;
 	width: 100%; height: 100%;margin: 0;padding: 0;
+	background: #fff;
 }
 
 #buttons {
@@ -32,6 +33,19 @@ html, body {
 			color: #ffffff;
 			background: royalblue;
 		}
+	}
+}
+
+#countdown {
+	font-size: 1.4rem;
+
+	& > .playTimer {
+		&::after {content: ' Auto Reload';}
+	}
+
+	& > .pauseTimer {
+		color: royalblue;
+		&::after {content: ' Pause';}
 	}
 }
 

@@ -4,19 +4,31 @@ window.$ = window.jQuery = require('jquery');
 const moment = require('moment');
 const fs = require('fs');
 
+var param;
 var REJECT = {
 	// このREJECTはファイルに追記していくデータをためるために使う。
 	// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
 	list: [],
-	get exportStr() {return JSON.stringify(this.list, null, '\t');},
+	autoExportSize : 100,
+	get exportStr() {return JSON.stringify(this.list.map((d) => d.body), null, '\t');},
 	add(data = {}) {this.list.push(data);},
 	clear() {this.list = [];},
-	distinctTitle() {this.list = this.list.filter(this.f, []);},
-	f(e) {return !this.includes(e.title) ? this.push(e.title) : false;}
+	distinctID() {
+		this.list = this.list.filter(this.f, []);
+		if (this.autoExportSize < this.list.length) this.exportData();
+	},
+	f(e) {return !this.includes(e.id) ? this.push(e.id) : false;},
+	exportData() {
+		write(`./resources/reject/rejected-${moment().format('YYYYMMDD-HH')}.txt`, REJECT.exportStr);
+		this.clear();
+	}
+
 };
 
 $(function() {
+	param = new URLSearchParams();
 	initJqEvent();
+	autoReload();
 });
 
 function initJqEvent() {
@@ -26,15 +38,22 @@ function initJqEvent() {
 		updateView(JSON.parse(readFile('./resources/test/sample.json')));
 	});
 
-	$('#export').on('click', function() {
-		write(`./resources/reject/rejected-${moment(Date.now()).format('YYYY-MM-DD')}.txt`, REJECT.exportStr);
-		REJECT.clear();
-	});
+	$('#export').on('click', REJECT.exportData);
 
 	$(document).on('click', '.markNG', function() {
 		REJECT.add($(this).closest('article').data('post'));
-		REJECT.distinctTitle();
+		REJECT.distinctID();
 	})
+}
+
+function autoReload() {
+	new CountDownTimer({
+		start: {minute: 2},
+		ontimerzero: function() {
+			this.restart();
+			reloadView();
+		}
+	});
 }
 
 function reloadView() {
@@ -42,7 +61,9 @@ function reloadView() {
 }
 
 function getItems() {
-	return fetch('https://qiita.com/api/v2/items').then(r => {
+	param.set('per_page', $('#per_page').val());
+
+	return fetch(`https://qiita.com/api/v2/items?${param}`).then(r => {
 		if (r.ok) return r.json();
 		throw 'Fail';
 	}).catch(console.error);
@@ -53,6 +74,7 @@ function updateView(items) {
 	for (var item of items) {
 		// リジェクトしたデータのうち、NGパターンを探すときに欲しいモノ
 		var post = {
+			id: item.id,
 			title: item.title,
 			url: item.url,
 			tags: item.tags,
@@ -66,7 +88,7 @@ function updateView(items) {
 	}
 
 	$('#view').empty().append(content.children());
-	REJECT.distinctTitle();
+	REJECT.distinctID();
 }
 
 function toArticle(item) {
@@ -82,7 +104,19 @@ function toArticle(item) {
 </article>`);
 }
 
-function escapeBody(str) {return str.replace(/</g, '&lt;').replace(/\n/g, '<br>');}
+function escapeBody(str) {
+	return str.replace(/[&"'`<>]/g, (match) => {
+		return {
+			'&' : '&amp;',
+			"'" : '&#x27;',
+			'"' : '&quot;',
+			'`' : '&#x60;',
+			'<' : '&lt;',
+			'>' : '&gt;'
+		}[match];
+	}).replace(/\n/g, '<br>');
+}
+
 function readFile(path) {return fs.readFileSync(path, 'utf8');}
 function write(path, appendTxt = '') {
 	try {
