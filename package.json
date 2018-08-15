@@ -10,12 +10,12 @@
     "assets/modules"
   ],
   "dependencies": {
-    "electron": "^2.0.5",
+    "electron": "^2.0.6",
     "jquery": "^3.3.1",
     "less": "^3.8.0",
     "module-alias": "^2.1.0",
     "moment": "^2.22.2",
-    "vue": "^2.5.16"
+    "vue": "^2.5.17"
   },
   "devDependencies": {
     "electron-packager": "^12.1.0"

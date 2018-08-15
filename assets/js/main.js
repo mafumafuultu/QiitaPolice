@@ -9,18 +9,17 @@ var REJECT = {
 	// このREJECTはファイルに追記していくデータをためるために使う。
 	// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
 	list: [],
+	map : new Map(),
 	autoExportSize : 100,
-	get exportStr() {return JSON.stringify(this.list.map((d) => d.body), null, '\t');},
-	add(data = {}) {this.list.push(data);},
-	clear() {this.list = [];},
-	distinctID() {
-		this.list = this.list.filter(this.f, []);
-		if (this.autoExportSize < this.list.length) this.exportData();
-	},
+	get exportStr() {
+		return JSON.stringify(Array.from(this.map.values()), null, '\t');
+	},//JSON.stringify(this.list.map((d) => d.body), null, '\t');},
+	add(data = {}) {this.map.set(data.id, data);},
+	clear() {this.map.clear()},
 	f(e) {return !this.includes(e.id) ? this.push(e.id) : false;},
 	exportData() {
 		write(`./resources/reject/rejected-${moment().format('YYYYMMDD-HH')}.txt`, REJECT.exportStr);
-		this.clear();
+		REJECT.clear();
 	}
 
 };
@@ -42,8 +41,13 @@ function initJqEvent() {
 
 	$(document).on('click', '.markNG', function() {
 		REJECT.add($(this).closest('article').data('post'));
-		REJECT.distinctID();
-	})
+	});
+
+	$(document).on('beforeunload', checkQuit);
+}
+
+function checkQuit() {
+	if (REJECT.map.size) REJECT.exportData();
 }
 
 function autoReload() {
@@ -88,7 +92,6 @@ function updateView(items) {
 	}
 
 	$('#view').empty().append(content.children());
-	REJECT.distinctID();
 }
 
 function toArticle(item) {

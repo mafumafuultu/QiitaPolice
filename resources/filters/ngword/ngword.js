@@ -2,7 +2,8 @@ module.exports = exports = {
 	name : 'NG word',
 	filter : [
 		"ngData",
-		"sexual"
+		"sexual",
+		"Benfica"
 	],
 	prop : 'body',
 };
