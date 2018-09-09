@@ -1,7 +1,11 @@
 module.exports = exports = {
 	name : 'NG idiom',
 	filter : [
-		'call girl'
+		'call girl',
+		'Click Here to Live',
+		'male enhancement',
+		'Watch Live Now',
+		'WATCH LINK'
 	],
 	prop : 'body',
 	_regexp() {

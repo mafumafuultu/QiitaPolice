@@ -66,6 +66,7 @@ function reloadView() {
 
 function getItems() {
 	param.set('per_page', $('#per_page').val());
+	param.set('page', $('#page').val());
 
 	return fetch(`https://qiita.com/api/v2/items?${param}`).then(r => {
 		if (r.ok) return r.json();
@@ -100,9 +101,9 @@ function toArticle(item) {
 	<h3 class="itemTitle">${item.title}</h3>
 	<div><button class="btn markNG">mark NG</button></div>
 	<div class="reason">NG reason : ${CustomFilter.reason} </div>
-	<div class="user">UserID : ${item.user.id}</div>
+	<div class="user">UserID : <a href="https://qiita.com/${item.user.id}" target="_userWin">${item.user.id}</a></div>
 	<div class="tags">Tag : <span>${item.tags.map((tag) => tag.name).join('</span><span>')}</span></div>
-	<div class="url">URL : ${item.url}</div>
+	<div class="url">URL : <a href="${item.url}" target="_postWin">${item.url}</a></div>
 	<div class="itemBody">${escapeBody(item.body)}</div>
 </article>`);
 }

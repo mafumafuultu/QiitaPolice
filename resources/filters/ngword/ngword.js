@@ -3,7 +3,17 @@ module.exports = exports = {
 	filter : [
 		"ngData",
 		"sexual",
-		"Benfica"
+		"Benfica",
+		"tinyurl",
+		"sportsblog",
+		"tennis",
+		"football",
+		"futsal",
+		"soccer"
+		"canlı",
+		"==>> http",
+		"LINK++>"
+
 	],
 	prop : 'body',
 };
