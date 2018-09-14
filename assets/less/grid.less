@@ -1,0 +1,38 @@
+@gridColumnSplit : 5;
+@gridGap : 8px;
+@gridRowBaseSize : 24px;
+
+.gridLayout(@idx, @base) {
+	@gsize : ~".g-@{idx}-@{base}";
+	@{gsize} {grid-column: span @idx;}
+}
+.mixGrid(@i, @v) when (@i > 0) {
+	.gridLayout(@i, @v);
+	.mixGrid(@i - 1, @v);
+}
+
+.gridSize(@idx) {
+	@gSet : ~".grid-@{idx}";
+	@{gSet} {
+		display: grid;
+		width:100%;
+		grid-template-columns: repeat(@idx, ~"calc((100% / @{idx}) - @{gridGap})");
+		grid-auto-rows: minmax(@gridRowBaseSize, auto);
+		grid-gap : @gridGap;
+		margin: 0;
+		padding: 0;
+		background : transparent;
+		.mixGrid(@idx, @idx);
+		& > .g-row {
+			display : grid;
+			grid-column: span @idx;
+			grid-template-columns: repeat(@idx, calc(100% / @idx));
+		}
+	}
+}
+
+.mixGridSize(@i) when (@i > 0) {
+	.gridSize(extract(@gridColumnSplit, @i));
+	.mixGridSize(@i - 1);
+}
+.mixGridSize(length(@gridColumnSplit));

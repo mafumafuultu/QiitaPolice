@@ -30,6 +30,7 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 
 ### new item
 任意の件数（20～100）投稿を取得する。フィルタを適用し、その結果を表示する。
+ページャにより更に過去の投稿を読み込み可能。
 
 ### Export
 フィルタにマッチしたデータを書き出す。
@@ -39,6 +40,9 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 テストデータに対してフィルタを適用し、その結果を表示する。
 テストデータは編集可能。
 
+### 1st post
+読み込んだ投稿のうち、各ユーザの初回投稿のみ表示する。
+
 ### AutoReload
 一定時間ごとに投稿を読み込む
 
@@ -47,6 +51,16 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 
 ### mark NG
 投稿ごとに用意しているボタンで、フィルタにマッチしなかったが、問題がある投稿としてマークしExport対象とする。
+
+### ショートカットキー
+
+|キー |動作 |
+|-|-|
+|enter |記事の読み込み|
+|left |ページャのカウントアップ |
+|ctrl + left |ページャのカウントを最小値（1）|
+|right |ページャのカウントダウン |
+|ctrl + right |ページャのカウントを最大値（100） |
 
 
 ## Filter

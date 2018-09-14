@@ -2,7 +2,10 @@ const moduleAlias = require('module-alias')();
 const {CustomFilter, CountDownTimer} = require('modreader');
 window.$ = window.jQuery = require('jquery');
 const moment = require('moment');
+var keyboardJS = require('keyboardjs');
+
 const fs = require('fs');
+const post_count_filter_lim = 2;
 
 var param;
 var REJECT = {
@@ -21,12 +24,12 @@ var REJECT = {
 		write(`./resources/reject/rejected-${moment().format('YYYYMMDD-HH')}.txt`, REJECT.exportStr);
 		REJECT.clear();
 	}
-
 };
 
 $(function() {
 	param = new URLSearchParams();
 	initJqEvent();
+	initShortcut();
 	autoReload();
 });
 
@@ -39,6 +42,11 @@ function initJqEvent() {
 
 	$('#export').on('click', REJECT.exportData);
 
+	$('#firstPostFilter').on('click', function(e, d) {
+		let me = $(this);
+		me.toggleClass('btn_on').data('firstPostFlg', me.hasClass('btn_on'));
+	});
+
 	$(document).on('click', '.markNG', function() {
 		REJECT.add($(this).closest('article').data('post'));
 	});
@@ -46,9 +54,20 @@ function initJqEvent() {
 	$(document).on('beforeunload', checkQuit);
 }
 
-function checkQuit() {
-	if (REJECT.map.size) REJECT.exportData();
+function initShortcut() {
+	keyboardJS.on('enter', reloadView);
+	keyboardJS.on('right', nextPage);
+	keyboardJS.on('left', prevPage);
+	keyboardJS.on('ctrl + right', toStart);
+	keyboardJS.on('ctrl + left', toEnd);
 }
+
+function nextPage() {var v = parseInt($('#page').val());$('#page').val( between(v + 1, 1, 100) ? v + 1 : 100);}
+function prevPage() {var v = parseInt($('#page').val());$('#page').val( between(v - 1, 1, 100) ? v - 1 : 1);}
+function toStart() {$('#page').val(1);}
+function toEnd() {$('#page').val(100);}
+
+function checkQuit() {if (REJECT.map.size) REJECT.exportData();}
 
 function autoReload() {
 	new CountDownTimer({
@@ -60,23 +79,56 @@ function autoReload() {
 	});
 }
 
-function reloadView() {
-	getItems().then(updateView);
-}
+function reloadView() {getItems().then(updateView);}
 
-function getItems() {
+function reloadUser() {getUsers().then(reMapUser);}
+
+function getUsers() {
 	param.set('per_page', $('#per_page').val());
 	param.set('page', $('#page').val());
 
-	return fetch(`https://qiita.com/api/v2/items?${param}`).then(r => {
+	return fetch(`https://qiita.com/api/v2/users?${param}`).then(r => {
 		if (r.ok) return r.json();
 		throw 'Fail';
 	}).catch(console.error);
 }
 
+function reMapUser(arr) {return arr.map(userFilter);}
+
+function userFilter(obj) {
+	let {id, name, description, website_url} = obj;
+	return {
+		id: id,
+		name: name,
+		description: description,
+		website_url: website_url,
+		userPage : `https://qiita.com/${id}`,
+		userpageLink: `<a href="https://qiita.com/${id}">@${id}</a>`
+	};
+}
+
+function getItems() {
+	param.set('per_page', $('#per_page').val());
+	param.set('page', $('#page').val());
+	firstPostFlg = $('#firstPostFilter').data('firstPostFlg');
+
+	return fetch(`https://qiita.com/api/v2/items?${param}`).then(r => {
+		if (r.ok) return r.json();
+		throw 'Fail';
+	}).then(d => {
+		return d.map(p => {
+			if (firstPostFlg) {
+				if (p.user.items_count < post_count_filter_lim) return p;
+			} else {
+				return p;
+			}
+		}).reduce( (a, b) => {if (b) a.push(b); return a;}, []);
+	}).catch(console.error);
+}
+
 function updateView(items) {
 	var content = $('<div id="contentList"></div>');
-	for (var item of items) {
+	let jumpItems = items.map(item => {
 		// リジェクトしたデータのうち、NGパターンを探すときに欲しいモノ
 		var post = {
 			id: item.id,
@@ -87,12 +139,13 @@ function updateView(items) {
 		};
 		CustomFilter.check(item);
 		if (CustomFilter.result) REJECT.add(post);
-
 		content.append(toArticle(item));
 		content.find(`#${item.id}`).data('post', post);
-	}
 
-	$('#view').empty().append(content.children());
+		return `<div class="jumpItem"><a href="#${item.id}">${escapeBody(item.title)}</a></div>`;
+	});
+	$('#jumpList').html(jumpItems.join(''));
+	$('#view').html(content.children());
 }
 
 function toArticle(item) {
@@ -102,10 +155,28 @@ function toArticle(item) {
 	<div><button class="btn markNG">mark NG</button></div>
 	<div class="reason">NG reason : ${CustomFilter.reason} </div>
 	<div class="user">UserID : <a href="https://qiita.com/${item.user.id}" target="_userWin">${item.user.id}</a></div>
+	<div class="">Post: ${postCount(item.user.items_count)} </div>
 	<div class="tags">Tag : <span>${item.tags.map((tag) => tag.name).join('</span><span>')}</span></div>
 	<div class="url">URL : <a href="${item.url}" target="_postWin">${item.url}</a></div>
 	<div class="itemBody">${escapeBody(item.body)}</div>
 </article>`);
+}
+
+function postCount(num) {
+	var suf = 'th';
+	switch (num) {
+		case 1:
+			suf = 'st'
+			break;
+		case 2:
+			suf = 'nd'
+			break;
+		case 3:
+			suf = 'rd';
+		default:
+
+	}
+	return `${num}${suf}`;
 }
 
 function escapeBody(str) {
@@ -121,7 +192,9 @@ function escapeBody(str) {
 	}).replace(/\n/g, '<br>');
 }
 
-function readFile(path) {return fs.readFileSync(path, 'utf8');}
+
+
+
 function write(path, appendTxt = '') {
 	try {
 		if (fs.existsSync(path)) {
@@ -135,3 +208,6 @@ function write(path, appendTxt = '') {
 		return false;
 	}
 }
+
+const readFile = (path) => fs.readFileSync(path, 'utf8');
+const between = (val, from, to) => from <= val && val <= to;

@@ -29,6 +29,10 @@ html, body {
 		transition-delay: 250ms;
 		transition-duration: 500ms;
 
+		&.btn_on {
+			background: red;
+		}
+
 		&:hover {
 			color: #ffffff;
 			background: royalblue;
@@ -47,6 +51,23 @@ html, body {
 		color: royalblue;
 		&::after {content: ' Pause';}
 	}
+}
+
+#jumpList {
+	position: fixed;
+	top: 2rem;
+
+	overflow-y: scroll;
+
+	& .jumpItem {
+		padding-top: 0.4rem;
+		white-space: pre;
+
+		&:nth-child(odd) {
+			background: #dfdfdf;
+		}
+	}
+
 }
 
 .tagItem() {
@@ -95,3 +116,19 @@ article {
 		border: 1px solid royalblue;
 	}
 }
+
+::-webkit-scrollbar{
+	width:4px;
+	height:4px;
+}
+::-webkit-scrollbar-track{
+	border-radius:10px;
+	box-shadow:inset 0 0 5px rgba(0,0,0,0.1);
+}
+::-webkit-scrollbar-thumb{
+	background:#666;
+	border-radius:10px;
+	box-shadow: 0 0 0 1px rgba(255,255,255,0.3);
+}
+
+@import 'grid';
