@@ -6,7 +6,17 @@ var keyboardJS = require('keyboardjs');
 
 const fs = require('fs');
 const post_count_filter_lim = 2;
-
+const popQpost = `if(location.origin === 'https://qiita.com'){document.querySelector('.fa.fa-fw.fa-flag').click();document.querySelector('input[type=radio][value=spam]').click();}`;
+document.addEventListener('onresize', () => {
+	var v;
+	function mytimer() {
+		clearTimeout(v);
+		v = setTimeout(() => {
+			$('#jumpList').css({height: `${innerHeight}px`});
+		}, 500);
+	}
+	mytimer();
+});
 var param;
 var REJECT = {
 	// このREJECTはファイルに追記していくデータをためるために使う。
@@ -50,6 +60,11 @@ function initJqEvent() {
 	$(document).on('click', '.markNG', function() {
 		REJECT.add($(this).closest('article').data('post'));
 	});
+	$(document).on('click', '.reportSpam', function() {
+		let item = $(this).closest('article').data('post');
+		REJECT.add(item);
+		reportSpam(item);
+	});
 
 	$(document).on('beforeunload', checkQuit);
 }
@@ -79,9 +94,9 @@ function autoReload() {
 	});
 }
 
-function reloadView() {getItems().then(updateView);}
+const reloadView = () => getItems().then(updateView);
 
-function reloadUser() {getUsers().then(reMapUser);}
+const reloadUser = () => getUsers().then(reMapUser);
 
 function getUsers() {
 	param.set('per_page', $('#per_page').val());
@@ -93,7 +108,7 @@ function getUsers() {
 	}).catch(console.error);
 }
 
-function reMapUser(arr) {return arr.map(userFilter);}
+const reMapUser = arr => arr.map(userFilter);
 
 function userFilter(obj) {
 	let {id, name, description, website_url} = obj;
@@ -152,7 +167,7 @@ function toArticle(item) {
 	return $(`
 <article id="${item.id}">
 	<h3 class="itemTitle">${item.title}</h3>
-	<div><button class="btn markNG">mark NG</button></div>
+	<div><button class="btn markNG">mark NG</button> <button class="btn reportSpam">Report spam</button></div>
 	<div class="reason">NG reason : ${CustomFilter.reason} </div>
 	<div class="user">UserID : <a href="https://qiita.com/${item.user.id}" target="_userWin">${item.user.id}</a></div>
 	<div class="">Post: ${postCount(item.user.items_count)} </div>
@@ -192,7 +207,10 @@ function escapeBody(str) {
 	}).replace(/\n/g, '<br>');
 }
 
-
+function reportSpam(item) {
+	let win = open(`${item.url}`, 'qiita');
+	win.eval(popQpost);
+}
 
 
 function write(path, appendTxt = '') {
