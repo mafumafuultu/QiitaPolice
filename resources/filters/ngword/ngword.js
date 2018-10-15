@@ -9,11 +9,10 @@ module.exports = exports = {
 		"tennis",
 		"football",
 		"futsal",
-		"soccer"
+		"soccer",
 		"canlı",
-		"==>> http",
-		"LINK++>"
-
+		"Tennessee",
+		"tennis"
 	],
 	prop : 'body',
 };

@@ -1,4 +1,5 @@
 const jQuery = require('jquery');
+const XRegExp = require('xregexp');
 const basePath = '@resources/filters';
 var fil;
 var userFilters = [];
@@ -20,15 +21,17 @@ class CustomFilter{
 			name : '',
 			prop : '',
 			filter: [],
+			noNoise: false,
 			init() {
 				this._regexp();
 			},
 			_regexp() {
-				this._reg = new RegExp(`\\b${this.filter.join('\\b|\\b')}\\b`, 'gi');
+				this._reg = this.noNoise ? new RegExp(`${this.filter.join('|')}`, 'gi') : new RegExp(`\\b${this.filter.join('\\b|\\b')}\\b`, 'gi');
+				this._noseReplace = this.noNoise ? new XRegExp('\\PL+', 'gium') : '';
 			},
 			check(obj) {
 				this._reg.lastIndex = 0;
-				this._result = this._reg.test(obj[this.prop]);
+				this._result = this._reg.test(obj[this.prop].replace(this._noseReplace, ''));
 			},
 			result() {
 				return this._result;

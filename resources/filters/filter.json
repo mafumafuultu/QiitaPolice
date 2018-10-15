@@ -4,14 +4,21 @@
 			"ngword.js"
 		]
 	},
-	"nguri" : {
+	"ngtitle" : {
 		"files" : [
-			"ngtitle.js"
+			"ngurl.js",
+			"ngword.js"
 		]
 	},
 	"ngidiom" : {
 		"files" : [
 			"ngidiom.js"
+		]
+	},
+	"noiselessmatch" : {
+		"files" : [
+			"noiseless.js",
+			"noiselesstitle.js"
 		]
 	}
 }
