@@ -89,6 +89,8 @@ cp ./resources/* ../build/QiitaPolice-win32-x64/resources -recurse -force
 	prop : 'body',
 
 	/* 以下オプション */
+	// 記号類を除去してマッチするモード
+	noNoise: false,
 
 	_regexp() {
 		this._reg = new RegExp(`\\b${this.filter.join('\\b|\\b')}\\b`, 'gi');
