@@ -1,6 +1,6 @@
 {
   "name": "qiita-police",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Qiitaのスパム投稿発見に使うelectron製デスクトップアプリ",
   "main": "index.js",
   "_moduleAliases": {
@@ -10,17 +10,17 @@
     "assets/modules"
   ],
   "dependencies": {
-    "electron": "^2.0.11",
-    "jquery": "^3.3.1",
-    "keyboardjs": "^2.4.1",
-    "less": "^3.8.1",
-    "module-alias": "^2.1.0",
-    "moment": "^2.22.2",
-    "vue": "^2.5.17",
-    "xregexp": "^4.2.0"
+    "electron": "^9.1.0",
+    "jquery": "^3.5.1",
+    "keyboardjs": "^2.6.3",
+    "less": "^3.11.3",
+    "module-alias": "^2.2.2",
+    "moment": "^2.27.0",
+    "vue": "^2.6.11",
+    "xregexp": "^4.3.0"
   },
   "devDependencies": {
-    "electron-packager": "^12.2.0"
+    "electron-packager": "^15.0.0"
   },
   "scripts": {
     "start": "electron .",
