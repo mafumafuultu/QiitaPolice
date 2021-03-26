@@ -1,7 +1,6 @@
-const jQuery = require('jquery');
-const moment = require('moment');
+import moment  from '../../node_modules/moment/dist/moment.js';
 
-class CountDownTimer {
+export class CountDownTimer {
 	get DEFAULT_SETTING() {
 		return {
 			id : 'countdown',
@@ -20,7 +19,7 @@ class CountDownTimer {
 	}
 
 	constructor(opt) {
-		this.setting = jQuery.extend(this.DEFAULT_SETTING, opt);
+		this.setting = Object.assign(this.DEFAULT_SETTING, opt);
 		if (!document.querySelector(`#${this.setting.id}`)) return void console.error(`not found #${this.setting.id}`);
 		this.init();
 	}
@@ -79,5 +78,3 @@ class CountDownTimer {
 		return this.pending ? 'pauseTimer' : 'playTimer';
 	}
 }
-
-module.exports = exports = CountDownTimer;
