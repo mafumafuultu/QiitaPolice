@@ -1,5 +1,4 @@
-const XRegExp = require('xregexp');
-module.exports = exports = {
+export default {
 	name : 'NG-noise',
 	filter : [
 		"livestream",

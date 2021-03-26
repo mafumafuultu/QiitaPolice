@@ -1,22 +1,22 @@
 {
-	"ngword" : {
-		"files" : [
+	"ngword": {
+		"files": [
 			"ngword.js"
 		]
 	},
-	"ngtitle" : {
-		"files" : [
+	"ngtitle": {
+		"files": [
 			"ngurl.js",
 			"ngword.js"
 		]
 	},
-	"ngidiom" : {
-		"files" : [
+	"ngidiom": {
+		"files": [
 			"ngidiom.js"
 		]
 	},
-	"noiselessmatch" : {
-		"files" : [
+	"noiselessmatch": {
+		"files": [
 			"noiseless.js",
 			"noiselesstitle.js"
 		]

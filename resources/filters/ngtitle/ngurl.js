@@ -1,4 +1,4 @@
-module.exports = exports = {
+export default {
 	name : 'Title of URL alone is NG',
 	prop : 'title',
 	_regexp() {

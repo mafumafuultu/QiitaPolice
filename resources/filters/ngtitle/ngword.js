@@ -1,4 +1,4 @@
-module.exports = exports = {
+export default {
 	name : 'NG title word',
 	filter : [
 		"vivo",
