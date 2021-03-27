@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>QiitaPolice</title>
 	<link rel="stylesheet" href="./assets/css/main.css">
-	<script src="./assets/js/main.js" charset="utf-8"></script>
+	<script src="./assets/js/main.mjs" charset="utf-8" type="module"></script>
 </head>
 <body>
 	<div id="buttons">
@@ -20,5 +20,16 @@
 		<div class="g-4-5" id="view"></div>
 		<div class="g-1-5" id="titleIdx"><div id="jumpList"></div></div>
 	</div>
+	<script>
+const { ipcRenderer } = require('electron');
+
+function writeFile(obj) {
+	return ipcRenderer.sendSync('file-write', obj);
+}
+
+function readSample() {
+	return ipcRenderer.sendSync('file-read', null);
+}
+	</script>
 </body>
 </html>

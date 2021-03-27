@@ -1,23 +1,14 @@
 {
   "name": "qiita-police",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Qiitaのスパム投稿発見に使うelectron製デスクトップアプリ",
   "main": "index.js",
-  "_moduleAliases": {
-    "@resources": "resources"
-  },
-  "_moduleDirectories": [
-    "assets/modules"
-  ],
   "dependencies": {
     "electron": "^9.1.0",
     "jquery": "^3.5.1",
     "keyboardjs": "^2.6.3",
     "less": "^3.11.3",
-    "module-alias": "^2.2.2",
-    "moment": "^2.27.0",
-    "vue": "^2.6.11",
-    "xregexp": "^4.3.0"
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "electron-packager": "^15.0.0"
@@ -29,5 +20,13 @@
     "build": "electron-packager . QiitaPolice --out=../build --overwrite --asar"
   },
   "author": "mafumafuultu",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mafumafuultu/QiitaPolice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mafumafuultu/QiitaPolice/issues"
+  },
+  "homepage": "https://github.com/mafumafuultu/QiitaPolice#readme"
 }

@@ -4,3 +4,4 @@ package-lock.json
 build/
 resources/reject/*.txt
 doc/
+yarn.lock

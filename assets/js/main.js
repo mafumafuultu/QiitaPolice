@@ -1,90 +1,119 @@
-const moduleAlias = require('module-alias')();
-const {CustomFilter, CountDownTimer} = require('modreader');
-window.$ = window.jQuery = require('jquery');
-const moment = require('moment');
-var keyboardJS = require('keyboardjs');
+import {CountDownTimer} from '../modules/countdown.js';
+import {CustomFilter} from '../modules/custom-filter.js';
+import '../../node_modules/keyboardjs/dist/keyboard.js';
 
-const fs = require('fs');
-const post_count_filter_lim = 2;
+
+var filters = {};
 const popQpost = `if(location.origin === 'https://qiita.com'){document.querySelector('.fa.fa-fw.fa-flag').click();document.querySelector('input[type=radio][value=spam]').click();}`;
-document.addEventListener('onresize', () => {
-	var v;
-	function mytimer() {
-		clearTimeout(v);
-		v = setTimeout(() => {
-			$('#jumpList').css({height: `${innerHeight}px`});
-		}, 500);
+const param = new URLSearchParams();
+const ID = id => document.getElementById(id);
+const tag = (tag, id, cls, f = e => e) => {
+	let e = document.createElement(tag);
+	if (id) e.id = id;
+	if (cls) e.className = cls;
+	return f(e);
+};
+const txt = s => document.createTextNode(s);
+const addDocEv = (ev, fn) => {
+	document.addEventListener(ev, fn);
+};
+const addEvent = (id, ev, fn) => {
+	let e = ID(id);
+	e.addEventListener(ev, fn);
+	return e;
+};
+const addElEv = (el, ev, fn) => {
+	el.addEventListener(ev, fn);
+	return el;
+};
+const getInputNum = id => parseInt(ID(id).value);
+const setInputNum = (id, v) => ID(id).value = v;
+const between = (val, from, to) => from <= val && val <=to;
+const decoder = new TextDecoder();
+const postCount = num => {
+	var suf = 'th';
+	switch (num) {
+		case 1: suf = 'st'; break;
+		case 2: suf = 'nd'; break;
+		case 3: suf = 'rd';
+		default:
 	}
-	mytimer();
+	return `${num}${suf}`;
+};
+
+const escapeBody = str => str.replace(/[&"'`<>]/g, match => {
+	return {
+		'&' : '&amp;',
+		"'" : '&#x27;',
+		'"' : '&quot;',
+		'`' : '&#x60;',
+		'<' : '&lt;',
+		'>' : '&gt;'
+	}[match];
+}).replace(/\n/g, '<br>');
+
+const getFilter = () => fetch('resources/filters/filter.json')
+.then(v => v.json())
+.then(json => {
+	let li = [];
+	for (let path in json)
+		for (let file of json[path]?.files)
+			li.push(import(`../../resources/filters/${path}/${file}`).then(v => v.default));
+
+	Promise.all(li).then(v => new CustomFilter(v)).then(v => {filters = v})
 });
-var param;
-var REJECT = {
-	// このREJECTはファイルに追記していくデータをためるために使う。
-	// Exportしたデータを使用して、パターン見つけてフィルタ更新していくと良いと思う。
+
+const REJECT = {
 	list: [],
-	map : new Map(),
-	autoExportSize : 100,
+	map: new Map(),
+	autoExportSize: 100,
 	get exportStr() {
 		return JSON.stringify(Array.from(this.map.values()), null, '\t');
-	},//JSON.stringify(this.list.map((d) => d.body), null, '\t');},
-	add(data = {}) {this.map.set(data.id, data);},
-	clear() {this.map.clear()},
-	f(e) {return !this.includes(e.id) ? this.push(e.id) : false;},
+	},
+	add (data = {}) {this.map.set(data.id, data);},
+	clear() {this.map.clear();},
+	f(e) {return !this.includes(e.id) ? this.push(e.id) : false},
 	exportData() {
-		write(`./resources/reject/rejected-${moment().format('YYYYMMDD-HH')}.txt`, REJECT.exportStr);
+		writeFile(REJECT.exportStr);
 		REJECT.clear();
 	}
 };
 
-$(function() {
-	param = new URLSearchParams();
-	initJqEvent();
-	initShortcut();
+const onload = () => document.readyState !== 'complete'
+	? new Promise(r => document.addEventListener('readystatechange', () => {
+		switch (document.readyState) {
+			case 'complete': r();break;
+			default:
+		}
+	}))
+	: Promise.resolve();
+
+onload().then(_ => {
+	getFilter();
+	initEv();
+	shortcuts();
 	autoReload();
 });
 
-function initJqEvent() {
-	$('#newitem').on('click', reloadView);
+const reloadView = () => getItems().then(updateView);
 
-	$('#testData').on('click', function() {
-		updateView(JSON.parse(readFile('./resources/test/sample.json')));
+const initEv = () => {
+	addEvent('newitem', 'click', reloadView);
+	addEvent('export', 'click', REJECT.exportData);
+	addEvent('testData', 'click', _ => updateView(JSON.parse(decoder.decode(readSample()))));
+	addEvent('firstPostFilter', 'click', e => {
+		e.target.classList.toggle('btn_on');
+		e.target.dataset.firstPostFlg = e.target.classList.contains('btn_on');
 	});
+	addDocEv('beforeunload', checkQuit);
+};
 
-	$('#export').on('click', REJECT.exportData);
-
-	$('#firstPostFilter').on('click', function(e, d) {
-		let me = $(this);
-		me.toggleClass('btn_on').data('firstPostFlg', me.hasClass('btn_on'));
-	});
-
-	$(document).on('click', '.markNG', function() {
-		REJECT.add($(this).closest('article').data('post'));
-	});
-	$(document).on('click', '.reportSpam', function() {
-		let item = $(this).closest('article').data('post');
-		REJECT.add(item);
-		reportSpam(item);
-	});
-
-	$(document).on('beforeunload', checkQuit);
-}
-
-function initShortcut() {
-	keyboardJS.on('enter', reloadView);
-	keyboardJS.on('right', nextPage);
-	keyboardJS.on('left', prevPage);
-	keyboardJS.on('ctrl + right', toStart);
-	keyboardJS.on('ctrl + left', toEnd);
-}
-
-function nextPage() {var v = parseInt($('#page').val());$('#page').val( between(v + 1, 1, 100) ? v + 1 : 100);}
-function prevPage() {var v = parseInt($('#page').val());$('#page').val( between(v - 1, 1, 100) ? v - 1 : 1);}
-function toStart() {$('#page').val(1);}
-function toEnd() {$('#page').val(100);}
-
-function checkQuit() {if (REJECT.map.size) REJECT.exportData();}
-
-function autoReload() {
+const nextPage = () => setInputNum('page', (v => between(v + 1, 1, 100) ? v + 1 : 100)(getInputNum('page')));
+const prevPage = () => setInputNum('page', (v => between(v - 1, 1, 100) ? v - 1 : 100)(getInputNum('page')));
+const toStart = () => setInputNum('page', 1);
+const toEnd = () => setInputNum('page', 100);
+const checkQuit = () => REJECT.map.size ? REJECT.exportData() : void 0;
+const autoReload = () => {
 	new CountDownTimer({
 		start: {minute: 2},
 		ontimerzero: function() {
@@ -94,138 +123,115 @@ function autoReload() {
 	});
 }
 
-const reloadView = () => getItems().then(updateView);
-
-const reloadUser = () => getUsers().then(reMapUser);
-
-function getUsers() {
-	param.set('per_page', $('#per_page').val());
-	param.set('page', $('#page').val());
-
-	return fetch(`https://qiita.com/api/v2/users?${param}`).then(r => {
-		if (r.ok) return r.json();
-		throw 'Fail';
-	}).catch(console.error);
-}
-
-const reMapUser = arr => arr.map(userFilter);
-
-function userFilter(obj) {
-	let {id, name, description, website_url} = obj;
-	return {
-		id: id,
-		name: name,
-		description: description,
-		website_url: website_url,
-		userPage : `https://qiita.com/${id}`,
-		userpageLink: `<a href="https://qiita.com/${id}">@${id}</a>`
-	};
-}
+const shortcuts = () => {
+	keyboardJS.on('enter', reloadView);
+	keyboardJS.on('right', nextPage);
+	keyboardJS.on('left', prevPage);
+	keyboardJS.on('ctrl + right', toStart);
+	keyboardJS.on('ctrl + left', toEnd);
+};
 
 function getItems() {
-	param.set('per_page', $('#per_page').val());
-	param.set('page', $('#page').val());
-	firstPostFlg = $('#firstPostFilter').data('firstPostFlg');
+	param.set('per_page', getInputNum('per_page'));
+	param.set('page', getInputNum('page'));
+	var firstPostFlg = ID('firstPostFilter').dataset.firstPostFlg;
 
 	return fetch(`https://qiita.com/api/v2/items?${param}`).then(r => {
 		if (r.ok) return r.json();
 		throw 'Fail';
-	}).then(d => {
-		return d.map(p => {
-			if (firstPostFlg) {
-				if (p.user.items_count < post_count_filter_lim) return p;
-			} else {
-				return p;
-			}
-		}).reduce( (a, b) => {if (b) a.push(b); return a;}, []);
-	}).catch(console.error);
+	}).then(d => d.map(p => firstPostFlg
+		? p.user.items_count < post_count_filter_lim
+			? p
+			: void 0
+		: p
+		).reduce((a, b) => {if (b) a.push(b); return a;}, [])
+	).catch(console.error);
 }
 
 function updateView(items) {
-	var content = $('<div id="contentList"></div>');
+	const content = tag('div', 'contentList');
+
 	let jumpItems = items.map(item => {
-		// リジェクトしたデータのうち、NGパターンを探すときに欲しいモノ
-		var post = {
+		let post = {
 			id: item.id,
 			title: item.title,
 			url: item.url,
 			tags: item.tags,
 			body: item.body
 		};
-		CustomFilter.check(item);
-		if (CustomFilter.result) REJECT.add(post);
-		content.append(toArticle(item));
-		content.find(`#${item.id}`).data('post', post);
+		filters.check(item);
+		if (filters.result) console.log(post);
+		content.appendChild(toArticle(item));
+		content.querySelector(`#_${item.id}`).dataset.post = JSON.stringify(post);
 
-		return `<div class="jumpItem"><a href="#${item.id}">${escapeBody(item.title)}</a></div>`;
+		return `<div class="jumpItem"><a href="#_${item.id}">${escapeBody(item.title)}</a></div>`;
 	});
-	$('#jumpList').html(jumpItems.join(''));
-	$('#view').html(content.children());
+	ID('jumpList').innerHTML = jumpItems.join('');
+	[...ID('view').children].forEach(v => v.remove());
+	ID('view').append(content);
+
 }
 
 function toArticle(item) {
-	return $(`
-<article id="${item.id}">
-	<h3 class="itemTitle">${item.title}</h3>
-	<div><button class="btn markNG">mark NG</button> <button class="btn reportSpam">Report spam</button></div>
-	<div class="reason">NG reason : ${CustomFilter.reason} </div>
-	<div class="user">UserID : <a href="https://qiita.com/${item.user.id}" target="_userWin">${item.user.id}</a></div>
-	<div class="">Post: ${postCount(item.user.items_count)} </div>
-	<div class="tags">Tag : <span>${item.tags.map((tag) => tag.name).join('</span><span>')}</span></div>
-	<div class="url">URL : <a href="${item.url}" target="_postWin">${item.url}</a></div>
-	<div class="itemBody">${escapeBody(item.body)}</div>
-</article>`);
-}
-
-function postCount(num) {
-	var suf = 'th';
-	switch (num) {
-		case 1:
-			suf = 'st'
-			break;
-		case 2:
-			suf = 'nd'
-			break;
-		case 3:
-			suf = 'rd';
-		default:
-
-	}
-	return `${num}${suf}`;
-}
-
-function escapeBody(str) {
-	return str.replace(/[&"'`<>]/g, (match) => {
-		return {
-			'&' : '&amp;',
-			"'" : '&#x27;',
-			'"' : '&quot;',
-			'`' : '&#x60;',
-			'<' : '&lt;',
-			'>' : '&gt;'
-		}[match];
-	}).replace(/\n/g, '<br>');
+	let wrap = tag('article', `_${item.id}`, null, article => {
+		article.append(
+			tag('h3', null, 'itemTitle', v => (v.appendChild(txt(item.title)), v)),
+			tag('div', null, null, el => {
+				el.append(
+					tag('button', null, 'btn markNG', b => (b.appendChild(txt('mark NG')), addElEv(b, 'click', e => {
+						REJECT.add(JSON.parse(e.target.closest('article').dataset.post));
+					}))),
+					tag('button', null, 'btn reportSpam', b => (b.appendChild(txt('Report spam')), addElEv(b, 'click', e => {
+						let item = JSON.parse(e.target.closest('article').dataset.post);
+						REJECT.add(item);
+						reportSpam(item);
+					})))
+				);
+				return el;
+			}),
+			tag('div', null, 'reason', e => (e.append(`NG reason : ${filters.reason}`), e)),
+			tag('div', null, 'user', e => {
+				e.append(
+					txt('UserID : '),
+					tag('a', null, null, a => {
+						a.href = `https://qiita.com/${item.user.id}`;
+						a.target = '_userWin';
+						a.append(item.user.id);
+						return a;
+					})
+				);
+				return e;
+			}),
+			tag('div', null, null, e => {
+				e.append(`Post: ${postCount(item.user.items_count)}`);
+				return e;
+			}),
+			tag('div', null, 'tags', e => {
+				 e.append(
+					txt('Tag : '),
+					...item.tags.map(t => tag('span', null, null, sp => sp.append(t)))
+				);
+				 return e;
+			}),
+			tag('div', null, 'url', e => {
+				e.append(tag('a', null, null, a => {
+					a.target = '_postWin';
+					a.append(item.url);
+					return a;
+				}));
+				return e;
+			}),
+			tag('div', null, 'itemBody', e => {
+				e.append(escapeBody(item.body));
+				return e;
+			})
+		);
+		return article;
+	});
+	return wrap;
 }
 
 function reportSpam(item) {
 	let win = open(`${item.url}`, 'qiita');
-	win.eval(popQpost);
+	win.setInterval(popQpost);
 }
-
-
-function write(path, appendTxt = '') {
-	try {
-		if (fs.existsSync(path)) {
-			fs.appendFileSync(path, appendTxt);
-		} else {
-			fs.writeFileSync(path, appendTxt);
-		}
-		return true;
-	} catch (e) {
-		console.error(e);
-		return false;
-	}
-}
-
-const readFile = (path) => fs.readFileSync(path, 'utf8');
-const between = (val, from, to) => from <= val && val <= to;
