@@ -1,7 +1,7 @@
 # QiitaPolice
 
 ![licence](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)
 
 Qiitaに投稿されるスパムを検出するために使用する。  
 最新投稿20件に対して、チェックを行う。
