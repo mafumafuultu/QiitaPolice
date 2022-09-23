@@ -3,6 +3,7 @@ const isDebug = true;
 var win = null;
 const fs = require('fs');
 const moment = require('moment');
+const path = require('path');
 
 app.on('window-all-closed', () => {if (process.platform !== 'darwin') app.quit();});
 app.on('activate', () => {if (win === null) createMainWindow();});
@@ -24,7 +25,8 @@ function createMainWindow() {
 		fullscreenable: true,
 		webPreferences: {
 			nodeIntegration: true,
-			devTools : isDebug
+			devTools : isDebug,
+			preload: path.join(__dirname, 'preload.js')
 		}
 	}),
 	win.webContents.openDevTools();

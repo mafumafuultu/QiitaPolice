@@ -22,6 +22,11 @@ const addEvent = (id, ev, fn) => {
 	e.addEventListener(ev, fn);
 	return e;
 };
+const addQlEv = (q, ev, fn) => {
+	let el = document.querySelectorAll(q);
+	el.forEach(e => addElEv(e, ev, fn));
+	return el;
+};
 const addElEv = (el, ev, fn) => {
 	el.addEventListener(ev, fn);
 	return el;
@@ -74,7 +79,7 @@ const REJECT = {
 	clear() {this.map.clear();},
 	f(e) {return !this.includes(e.id) ? this.push(e.id) : false},
 	exportData() {
-		writeFile(REJECT.exportStr);
+		electronAPI.writeFile(REJECT.exportStr);
 		REJECT.clear();
 	}
 };
@@ -96,15 +101,23 @@ onload().then(_ => {
 });
 
 const reloadView = () => getItems().then(updateView);
-
+const updateTheme = v => {
+	document.body.parentElement.className = v.srcElement.id;
+	document.querySelectorAll('#theme-switch > label').forEach(el => el.className = '');
+	document.querySelector(`#theme-switch > label[for=${v.srcElement.id}]`).className = 'sel';
+};
 const initEv = () => {
 	addEvent('newitem', 'click', reloadView);
 	addEvent('export', 'click', REJECT.exportData);
-	addEvent('testData', 'click', _ => updateView(JSON.parse(decoder.decode(readSample()))));
+	addEvent('testData', 'click', _ => updateView(JSON.parse(decoder.decode(electronAPI.readSample()))));
 	addEvent('firstPostFilter', 'click', e => {
 		e.target.classList.toggle('btn_on');
 		e.target.dataset.firstPostFlg = e.target.classList.contains('btn_on');
 	});
+	addQlEv('input[type=radio][name=theme]', 'change', updateTheme);
+	let theme = document.querySelector('input[type=radio][name=theme]:checked').id;
+	document.querySelector(`#theme-switch > label[for=${theme}]`).className = 'sel';
+	
 	addDocEv('beforeunload', checkQuit);
 };
 
@@ -209,7 +222,7 @@ function toArticle(item) {
 			tag('div', null, 'tags', e => {
 				 e.append(
 					txt('Tag : '),
-					...item.tags.map(t => tag('span', null, null, sp => sp.append(t)))
+					...item.tags.map(t => tag('span', null, null, sp => (sp.append(t.name), sp)))
 				);
 				 return e;
 			}),

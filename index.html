@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html class="ostheme">
 <head>
 	<meta charset="utf-8">
 	<title>QiitaPolice</title>
 	<link rel="stylesheet" href="./assets/css/main.css">
-	<script src="./assets/js/main.mjs" charset="utf-8" type="module"></script>
+	<link rel="stylesheet" href="./assets/css/fairy.css">
+	<script src="./assets/js/main.js" charset="utf-8" type="module"></script>
 </head>
 <body>
 	<div id="buttons">
@@ -15,21 +16,18 @@
 		<button class="btn" id="testData">Test data</button>
 		<button class="btn" id="firstPostFilter" class="">1st Post</button>
 		<sapn id="countdown"></sapn>
+		<span id="theme-switch">
+			<label for="ostheme">💻</label>
+			<label for="osdark">☾</label>
+			<label for="oslight">☀</label>
+			<input type="radio" name="theme" id="ostheme" checked>
+			<input type="radio" name="theme" id="osdark">
+			<input type="radio" name="theme" id="oslight">
+		</div>
 	</div>
 	<div class="grid-5">
 		<div class="g-4-5" id="view"></div>
 		<div class="g-1-5" id="titleIdx"><div id="jumpList"></div></div>
 	</div>
-	<script>
-const { ipcRenderer } = require('electron');
-
-function writeFile(obj) {
-	return ipcRenderer.sendSync('file-write', obj);
-}
-
-function readSample() {
-	return ipcRenderer.sendSync('file-read', null);
-}
-	</script>
 </body>
 </html>
