@@ -4,11 +4,11 @@
   "description": "Qiitaのスパム投稿発見に使うelectron製デスクトップアプリ",
   "main": "index.js",
   "dependencies": {
-    "electron": "^27.0.3",
-    "jquery": "^3.7.1",
+    "electron": "^41.3.0",
+    "jquery": "^4.0.0",
     "keyboardjs": "^2.7.0",
-    "less": "^4.2.0",
-    "moment": "^2.29.4"
+    "less": "^4.6.4",
+    "moment": "^2.30.1"
   },
   "devDependencies": {
     "electron-packager": "^17.1.2"
